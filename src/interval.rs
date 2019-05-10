@@ -46,6 +46,20 @@ impl Interval {
     pub fn new_interval(duration: Duration) -> Result<Interval, IoError> {
         Self::new(Instant::now() + duration, duration)
     }
+
+    pub fn new_interval_clock(duration: Duration, clockId: ClockId) -> Result<Interval, IoError> {
+        let timerfd = TimerFd::new(clockId)?;
+        assert!(
+            duration > Duration::new(0, 0),
+            "`duration` must be non-zero."
+        );
+        Ok(Interval {
+            timerfd,
+            at: Instant::now(),
+            duration,
+            initialized: false,
+        })
+    }
 }
 
 impl Stream for Interval {
